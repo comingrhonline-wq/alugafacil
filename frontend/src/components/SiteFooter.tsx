@@ -49,7 +49,10 @@ export default function SiteFooter() {
             <li><Link to="/imoveis" className="hover:text-white" data-testid="footer-link-imoveis">Todos os imóveis</Link></li>
             <li><Link to="/imoveis?tipo=casa" className="hover:text-white" data-testid="footer-link-casas">Casas para alugar</Link></li>
             <li><Link to="/imoveis?tipo=apartamento" className="hover:text-white" data-testid="footer-link-aptos">Apartamentos para alugar</Link></li>
+            <li><Link to="/imoveis?finalidade=venda" className="hover:text-white" data-testid="footer-link-venda">Imóveis à venda</Link></li>
+            <li><Link to="/imoveis?tipo=kitnet" className="hover:text-white" data-testid="footer-link-kitnets">Kitnets</Link></li>
             <li><Link to="/imoveis?promocao=1" className="hover:text-white" data-testid="footer-link-promocoes">Promoções</Link></li>
+            <li><Link to="/privacidade" className="hover:text-white" data-testid="footer-link-privacidade">Política de Privacidade</Link></li>
             <li><Link to="/admin" className="hover:text-white" data-testid="footer-link-admin">Área do corretor</Link></li>
           </ul>
         </div>
@@ -69,7 +72,10 @@ export default function SiteFooter() {
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-slate-500 sm:flex-row sm:justify-between sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} {s.nome_exibicao}. Todos os direitos reservados.</p>
-          <p>Valores e disponibilidade sujeitos a confirmação no momento do contato.</p>
+          <p>
+            Valores e disponibilidade sujeitos a confirmação no momento do contato ·{" "}
+            <Link to="/privacidade" className="underline-offset-2 hover:text-white hover:underline">Privacidade</Link>
+          </p>
         </div>
       </div>
     </footer>

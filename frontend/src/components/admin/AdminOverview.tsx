@@ -37,7 +37,7 @@ export default function AdminOverview({ goTo }: { goTo: (t: AdminTab) => void })
       )}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <Stat icon={Building2} label="Imóveis ativos" value={s ? `${s.imoveis_ativos}/${s.imoveis_total}` : "—"} testId="stat-imoveis" />
+        <Stat icon={Building2} label={s ? `Ativos · ${s.aluguel} aluguel · ${s.venda} venda` : "Imóveis ativos"} value={s ? `${s.imoveis_ativos}/${s.imoveis_total}` : "—"} testId="stat-imoveis" />
         <Stat icon={Flame} label="Promoções" value={s?.promocoes ?? "—"} accent testId="stat-promocoes" />
         <Stat icon={Star} label="Destaques" value={s?.destaques ?? "—"} testId="stat-destaques" />
         <Stat icon={Users} label="Novos interessados" value={s ? `${s.leads_novos}/${s.leads_total}` : "—"} accent testId="stat-leads" />

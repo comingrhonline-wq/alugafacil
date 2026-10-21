@@ -50,12 +50,20 @@ export default function FilterSelect({
 export const TIPO_OPTIONS: Option[] = [
   { value: "casa", label: "Casa" },
   { value: "apartamento", label: "Apartamento" },
+  { value: "kitnet", label: "Kitnet" },
 ];
 
 export const PRECO_OPTIONS: Option[] = [1500, 2000, 2500, 3000, 4000, 5000, 8000].map((v) => ({
   value: String(v),
   label: `Até ${v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}`,
 }));
+
+export const PRECO_VENDA_OPTIONS: Option[] = [200000, 300000, 400000, 500000, 700000, 1000000, 1500000].map((v) => ({
+  value: String(v),
+  label: `Até ${v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}`,
+}));
+
+export const precoOptions = (finalidade: string) => (finalidade === "venda" ? PRECO_VENDA_OPTIONS : PRECO_OPTIONS);
 
 export const QUARTOS_OPTIONS: Option[] = [1, 2, 3, 4].map((v) => ({ value: String(v), label: `${v}+ quarto${v > 1 ? "s" : ""}` }));
 

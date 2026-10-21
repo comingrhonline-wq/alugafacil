@@ -28,7 +28,7 @@ async def lifespan(app: FastAPI):
 
 
 # Create the main app without a prefix
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)  # no public API explorer
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -69,6 +69,9 @@ api_router.include_router(admin.router)
 # Include the router in the main app
 app.include_router(api_router)
 
+from lib.security import SecurityHeaders  # noqa: E402
+
+app.add_middleware(SecurityHeaders)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,

@@ -7,6 +7,7 @@ import ImovelDetalhe from "@/pages/ImovelDetalhe";
 import AdminLogin from "@/pages/AdminLogin";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
+import Privacidade from "@/pages/Privacidade";
 
 // One <Route> per page in src/pages; BrowserRouter already wraps this in main.tsx.
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/imoveis" element={<Imoveis />} />
           <Route path="/imovel/:codigo" element={<ImovelDetalhe />} />
+          <Route path="/privacidade" element={<Privacidade />} />
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route path="/admin/login" element={<AdminLogin />} />

@@ -9,7 +9,8 @@ import { cn } from "@/lib/utils";
 
 const LINKS = [
   { to: "/", label: "Início", id: "home" },
-  { to: "/imoveis", label: "Imóveis", id: "imoveis" },
+  { to: "/imoveis", label: "Alugar", id: "imoveis" },
+  { to: "/imoveis?finalidade=venda", label: "Comprar", id: "comprar" },
   { to: "/imoveis?promocao=1", label: "Promoções", id: "promocoes" },
   { to: "/#bairros", label: "Bairros", id: "bairros" },
   { to: "/#como-funciona", label: "Como funciona", id: "como-funciona" },
@@ -50,7 +51,7 @@ export default function SiteHeader() {
               className={({ isActive }) =>
                 cn(
                   "rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors duration-200 hover:bg-slate-100 hover:text-navy",
-                  isActive && l.to !== "/#bairros" && l.id !== "promocoes" && "text-navy font-semibold",
+                  isActive && l.id === "home" && "text-navy font-semibold",
                 )
               }
             >

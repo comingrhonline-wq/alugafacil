@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
 from lib.auth import COOKIE, is_admin, make_token, require_admin
 from lib.db import db
+from lib.security import rate_limit, reset
 from models.imovel import (
     AdminStats,
     AuthState,
@@ -34,9 +35,11 @@ def _aware(doc: dict) -> dict:
 
 # ---------- auth ----------
 @auth_router.post("/login", response_model=AuthState)
-async def login(body: LoginRequest, response: Response):
-    if not hmac.compare_digest(body.password, os.environ["ADMIN_PASSWORD"]):
+async def login(body: LoginRequest, request: Request, response: Response):
+    rate_limit(request, "login", limit=5, window_s=900)  # 5 tries / 15 min per IP
+    if not hmac.compare_digest(body.password.encode(), os.environ["ADMIN_PASSWORD"].encode()):
         raise HTTPException(status_code=401, detail="Senha incorreta")
+    reset(request, "login")
     response.set_cookie(
         COOKIE, make_token(), httponly=True, samesite="lax", secure=True, max_age=7 * 24 * 3600, path="/"
     )
@@ -136,6 +139,8 @@ async def admin_stats():
     por_imovel = Counter(lead["imovel_codigo"] for lead in leads if lead.get("imovel_codigo"))
     return AdminStats(
         imoveis_total=len(ims),
+        aluguel=sum(1 for i in ativos if i.get("finalidade", "aluguel") == "aluguel"),
+        venda=sum(1 for i in ativos if i.get("finalidade") == "venda"),
         imoveis_ativos=len(ativos),
         promocoes=sum(1 for i in ativos if i.get("preco_promocional")),
         destaques=sum(1 for i in ativos if i.get("destaque")),

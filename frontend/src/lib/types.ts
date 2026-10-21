@@ -1,11 +1,13 @@
 // Hand-written mirrors of backend/models/imovel.py — keep in sync.
-export type TipoImovel = "casa" | "apartamento";
+export type TipoImovel = "casa" | "apartamento" | "kitnet";
+export type Finalidade = "aluguel" | "venda";
 export type LeadStatus = "novo" | "contatado" | "visita" | "fechado" | "perdido";
 
 export interface ImovelBase {
   codigo: string;
   titulo: string;
   tipo: TipoImovel;
+  finalidade: Finalidade;
   bairro: string;
   cidade: string;
   estado: string;
@@ -35,6 +37,40 @@ export interface ImovelUpdate extends Partial<ImovelBase> {
   remover_promocao?: boolean;
 }
 
+export interface ImovelCard {
+  id: string;
+  codigo: string;
+  titulo: string;
+  tipo: TipoImovel;
+  finalidade: Finalidade;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  preco: number;
+  preco_promocional: number | null;
+  destaque: boolean;
+  area: number;
+  quartos: number;
+  banheiros: number;
+  vagas: number;
+  foto: string;
+  total_fotos: number;
+}
+
+export interface ImovelPage {
+  items: ImovelCard[];
+  total: number;
+  page: number;
+  pages: number;
+}
+
+export interface Resumo {
+  aluguel_total: number;
+  venda_total: number;
+  bairros: number;
+  menor_aluguel: number;
+}
+
 export interface Bairro {
   nome: string;
   total: number;
@@ -46,6 +82,8 @@ export interface LeadCreate {
   telefone: string;
   mensagem: string;
   imovel_codigo: string | null;
+  consentimento: boolean;
+  website: string;
 }
 
 export interface Lead {
@@ -57,6 +95,7 @@ export interface Lead {
   imovel_titulo: string | null;
   imovel_preco: number | null;
   status: LeadStatus;
+  consentimento: boolean;
   criado_em: string;
 }
 
@@ -79,6 +118,8 @@ export interface BairroCount {
 
 export interface AdminStats {
   imoveis_total: number;
+  aluguel: number;
+  venda: number;
   imoveis_ativos: number;
   promocoes: number;
   destaques: number;

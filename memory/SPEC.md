@@ -5,7 +5,8 @@ Rental real-estate site for Praia Grande/SP (pt-BR). Public site + password-prot
 ## Data
 - Listings imported once from primeimoveispg.com.br (residential rentals: casa + apartamento) via
   `backend/scripts/scrape_prime.py` → `backend/data/imoveis.json` → `python seed.py` (idempotent, by `codigo`).
-- Seed: 57 imóveis (44 apartamentos, 13 casas), ~14 bairros (Ocian has 19). Photos hotlinked from img.kenlo.io
+- Seed: 759 imóveis — 61 aluguel + 698 venda; tipos casa (incl. sobrado), apartamento (incl. cobertura/duplex/garden/triplex), kitnet; 33 bairros.
+  Field `finalidade` aluguel|venda. GET /imoveis is paginated (ImovelPage {items: ImovelCard[], total, page, pages}, page_size<=60, default finalidade=aluguel). GET /resumo gives counts. Photos hotlinked from img.kenlo.io
   (requires no-referrer — set via `<meta name="referrer">` + `referrerPolicy` on img).
 - Promo: **CA0331** (Casa com 2 quartos em Balneário Esmeralda) preco 1750 → preco_promocional 900 (−49%), destaque.
   5 other imóveis marked destaque.
@@ -28,6 +29,11 @@ GET /admin/leads, PATCH/DELETE /admin/leads/{id}, PUT /admin/settings, GET /admi
 ## Frontend routes
 / (hero search, promo CA0331, destaques, bairros, como funciona, contato form) · /imoveis (filters in URL) ·
 /imovel/:codigo (gallery+lightbox, specs, lead form, similares) · /admin/login · /admin (tabs: Visão geral, Imóveis, Interessados, Configurações)
+
+## Security / LGPD
+- /privacidade page; lead form requires consentimento=true (422 otherwise) + hidden honeypot `website` (filled → fake 201, nothing stored).
+- Rate limits per IP: POST /leads 8/10min, POST /auth/login 5/15min (429). Search regex escaped. Security headers middleware; /docs and /openapi.json disabled.
+- WhatsApp setting: (51) 8620-0169.
 
 ## Auth
 Single admin password from backend/.env ADMIN_PASSWORD — see memory/test_credentials.md.

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { BedDouble, Bath, Car, Maximize2, MapPin, Images } from "lucide-react";
-import type { Imovel } from "@/lib/types";
-import { brl, descontoPct, TIPO_LABEL } from "@/lib/format";
+import type { ImovelCard } from "@/lib/types";
+import { brl, descontoPct, sufixo, TIPO_LABEL } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export function Spec({ icon: Icon, value, label }: { icon: typeof BedDouble; value: string | number; label: string }) {
@@ -14,7 +14,7 @@ export function Spec({ icon: Icon, value, label }: { icon: typeof BedDouble; val
   );
 }
 
-export default function PropertyCard({ imovel: i, index = 0 }: { imovel: Imovel; index?: number }) {
+export default function PropertyCard({ imovel: i, index = 0 }: { imovel: ImovelCard; index?: number }) {
   const promo = !!i.preco_promocional;
   return (
     <Link
@@ -27,9 +27,9 @@ export default function PropertyCard({ imovel: i, index = 0 }: { imovel: Imovel;
       )}
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-        {i.fotos[0] ? (
+        {i.foto ? (
           <img
-            src={i.fotos[0]}
+            src={i.foto}
             alt={i.titulo}
             loading="lazy"
             referrerPolicy="no-referrer"
@@ -45,6 +45,9 @@ export default function PropertyCard({ imovel: i, index = 0 }: { imovel: Imovel;
                 Promoção −{descontoPct(i)}%
               </span>
             )}
+            <span className={cn("rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider shadow", i.finalidade === "venda" ? "bg-emerald-600 text-white" : "bg-white/90 text-navy")} data-testid={`property-card-finalidade-${i.codigo}`}>
+              {i.finalidade === "venda" ? "À venda" : "Aluguel"}
+            </span>
             {i.destaque && !promo && (
               <span className="rounded-full bg-navy px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow">
                 Destaque
@@ -54,7 +57,7 @@ export default function PropertyCard({ imovel: i, index = 0 }: { imovel: Imovel;
           <span className="rounded-full bg-white/90 px-2.5 py-1 font-mono text-[11px] font-medium text-navy backdrop-blur">{i.codigo}</span>
         </div>
         <span className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-[11px] text-white backdrop-blur">
-          <Images className="size-3" /> {i.fotos.length}
+          <Images className="size-3" /> {i.total_fotos}
         </span>
       </div>
       <div className="flex flex-1 flex-col gap-3 p-5">
@@ -62,7 +65,7 @@ export default function PropertyCard({ imovel: i, index = 0 }: { imovel: Imovel;
           <span className={cn("font-mono text-2xl font-bold tracking-tight", promo ? "text-pink-hover" : "text-navy")} data-testid={`property-card-price-${i.codigo}`}>
             {brl(i.preco_promocional || i.preco)}
           </span>
-          <span className="text-sm text-slate-500">/mês</span>
+          {sufixo(i) && <span className="text-sm text-slate-500">{sufixo(i)}</span>}
           {promo && <span className="font-mono text-sm text-slate-400 line-through">{brl(i.preco)}</span>}
         </div>
         <div>

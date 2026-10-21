@@ -12,12 +12,13 @@ import FilterSelect, { TIPO_OPTIONS } from "@/components/FilterSelect";
 import { useInvalidateImoveis } from "@/components/admin/AdminImoveis";
 import { apiPatch, apiPost, ApiError } from "@/lib/api";
 import { AMENIDADES } from "@/lib/format";
-import type { Imovel, ImovelCreate, ImovelUpdate, TipoImovel } from "@/lib/types";
+import type { Finalidade, Imovel, ImovelCreate, ImovelUpdate, TipoImovel } from "@/lib/types";
 
 interface FormState {
   codigo: string;
   titulo: string;
   tipo: TipoImovel;
+  finalidade: Finalidade;
   bairro: string;
   preco: string;
   preco_promocional: string;
@@ -35,13 +36,13 @@ interface FormState {
 }
 
 const EMPTY: FormState = {
-  codigo: "", titulo: "", tipo: "apartamento", bairro: "", preco: "", preco_promocional: "", area: "", quartos: "", suites: "",
+  codigo: "", titulo: "", tipo: "apartamento", finalidade: "aluguel", bairro: "", preco: "", preco_promocional: "", area: "", quartos: "", suites: "",
   banheiros: "", vagas: "", descricao: "", fotos: "", video_url: "", comodidades: [], ativo: true, destaque: false,
 };
 
 function fromImovel(i: Imovel): FormState {
   return {
-    codigo: i.codigo, titulo: i.titulo, tipo: i.tipo, bairro: i.bairro, preco: String(i.preco),
+    codigo: i.codigo, titulo: i.titulo, tipo: i.tipo, finalidade: i.finalidade ?? "aluguel", bairro: i.bairro, preco: String(i.preco),
     preco_promocional: i.preco_promocional ? String(i.preco_promocional) : "", area: String(i.area || ""),
     quartos: String(i.quartos), suites: String(i.suites), banheiros: String(i.banheiros), vagas: String(i.vagas),
     descricao: i.descricao, fotos: i.fotos.join("\n"), video_url: i.video_url, comodidades: i.comodidades, ativo: i.ativo, destaque: i.destaque,
@@ -63,7 +64,7 @@ export default function PropertyFormDialog({ open, onOpenChange, imovel }: { ope
     mutationFn: async () => {
       const promo = num(f.preco_promocional);
       const body: ImovelCreate = {
-        codigo: f.codigo.trim().toUpperCase(), titulo: f.titulo.trim(), tipo: f.tipo, bairro: f.bairro.trim(), cidade: "Praia Grande", estado: "SP",
+        codigo: f.codigo.trim().toUpperCase(), titulo: f.titulo.trim(), tipo: f.tipo, finalidade: f.finalidade, bairro: f.bairro.trim(), cidade: "Praia Grande", estado: "SP",
         preco: num(f.preco), preco_promocional: promo > 0 ? promo : null, destaque: f.destaque, ativo: f.ativo,
         area: num(f.area), quartos: num(f.quartos), suites: num(f.suites), banheiros: num(f.banheiros), vagas: num(f.vagas),
         comodidades: f.comodidades, descricao: f.descricao, fotos: f.fotos.split(/\n+/).map((s) => s.trim()).filter(Boolean), video_url: f.video_url.trim(),
@@ -115,16 +116,17 @@ export default function PropertyFormDialog({ open, onOpenChange, imovel }: { ope
           <div className="grid gap-4 sm:grid-cols-3">
             {field("codigo", "Código *", { placeholder: "AP1234" })}
             <div className="sm:col-span-2">{field("titulo", "Título *", { placeholder: "Apartamento com 2 quartos no Ocian" })}</div>
+            <FilterSelect label="Negócio *" value={f.finalidade} onChange={(v) => set("finalidade", v as Finalidade)} options={[{ value: "aluguel", label: "Aluguel" }, { value: "venda", label: "Venda" }]} testId="property-form-finalidade" />
             <FilterSelect label="Tipo *" value={f.tipo} onChange={(v) => set("tipo", v as TipoImovel)} options={TIPO_OPTIONS} testId="property-form-tipo" />
             {field("bairro", "Bairro *", { placeholder: "Ocian" })}
             {field("area", "Área (m²)", { inputMode: "decimal" })}
           </div>
 
           <div className="grid gap-4 rounded-2xl bg-pink-subtle/60 p-4 sm:grid-cols-2">
-            {field("preco", "Aluguel (R$) *", { inputMode: "decimal" })}
+            {field("preco", f.finalidade === "venda" ? "Valor de venda (R$) *" : "Aluguel mensal (R$) *", { inputMode: "decimal" })}
             <div>
               {field("preco_promocional", "Preço promocional (R$)", { inputMode: "decimal", placeholder: "Deixe vazio para sem promoção" })}
-              {promoInvalid && <p className="mt-1 text-xs text-destructive">O preço promocional deve ser menor que o aluguel.</p>}
+              {promoInvalid && <p className="mt-1 text-xs text-destructive">O preço promocional deve ser menor que o valor normal.</p>}
             </div>
           </div>
 

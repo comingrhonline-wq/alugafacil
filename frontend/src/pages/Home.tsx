@@ -4,8 +4,9 @@ import { ArrowRight, Search, ShieldCheck, Camera, MessageCircle, KeyRound, MapPi
 import PropertyCard, { PropertyCardSkeleton } from "@/components/PropertyCard";
 import PromoHighlight from "@/components/PromoHighlight";
 import InterestForm from "@/components/InterestForm";
-import FilterSelect, { PRECO_OPTIONS, QUARTOS_OPTIONS, TIPO_OPTIONS } from "@/components/FilterSelect";
-import { useBairros, useImoveis, useSettings } from "@/lib/queries";
+import FilterSelect, { precoOptions, QUARTOS_OPTIONS, TIPO_OPTIONS } from "@/components/FilterSelect";
+import { useBairros, useImoveis, useResumo, useSettings } from "@/lib/queries";
+import { cn } from "@/lib/utils";
 import { brl } from "@/lib/format";
 
 const HERO_IMG = "https://images.pexels.com/photos/34775542/pexels-photo-34775542.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=900&w=1600";
@@ -20,19 +21,27 @@ const STEPS = [
 export default function Home() {
   const navigate = useNavigate();
   const settings = useSettings();
+  const [fin, setFin] = useState<"aluguel" | "venda">("aluguel");
   const bairros = useBairros();
-  const todos = useImoveis({});
+  const bairrosBusca = useBairros(fin);
+  const resumoQ = useResumo();
+  const promoQ = useImoveis({ promocao: "true", page_size: "1" });
+  const destQ = useImoveis({ destaque: "true", page_size: "7" });
+  const vendaQ = useImoveis({ finalidade: "venda", destaque: "true", page_size: "6" });
   const [f, setF] = useState({ bairro: "", tipo: "", preco_max: "", quartos_min: "" });
 
-  const lista = todos.isError ? [] : todos.data ?? [];
-  const promo = lista.find((i) => i.preco_promocional);
-  const destaques = lista.filter((i) => i.destaque && !i.preco_promocional).slice(0, 6);
-  const vitrine = destaques.length >= 3 ? destaques : lista.filter((i) => !i.preco_promocional).slice(0, 6);
+  const resumo = resumoQ.isError ? undefined : resumoQ.data;
+  const total = resumo ? resumo.aluguel_total + resumo.venda_total : 0;
+  const promo = promoQ.isError ? undefined : promoQ.data?.items[0];
+  const vitrine = (destQ.isError ? [] : destQ.data?.items ?? []).filter((i) => !i.preco_promocional).slice(0, 6);
+  const vendas = vendaQ.isError ? [] : vendaQ.data?.items ?? [];
   const bairrosList = bairros.isError ? [] : bairros.data ?? [];
-  const menor = lista.length ? Math.min(...lista.map((i) => i.preco_promocional || i.preco)) : 0;
+  const bairrosBuscaList = bairrosBusca.isError ? [] : bairrosBusca.data ?? [];
+  const menor = resumo?.menor_aluguel ?? 0;
 
   const buscar = () => {
     const qs = new URLSearchParams();
+    if (fin === "venda") qs.set("finalidade", "venda");
     Object.entries(f).forEach(([k, v]) => v && qs.set(k, v));
     navigate(`/imoveis${qs.toString() ? `?${qs}` : ""}`);
   };
@@ -52,16 +61,16 @@ export default function Home() {
               Seu próximo endereço perto do mar, <span className="text-pink">sem complicação.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-200">
-              Casas e apartamentos para alugar com fotos reais, valores claros e atendimento direto. Escolha, fale com a gente e agende sua visita.
+              Casas, apartamentos e kitnets para alugar ou comprar, com fotos reais, valores claros e atendimento direto. Escolha, fale com a gente e agende sua visita.
             </p>
             <dl className="mt-10 grid max-w-lg grid-cols-3 gap-6 border-t border-white/15 pt-6" data-testid="hero-metrics">
               <div>
-                <dt className="text-xs uppercase tracking-wider text-slate-400">Imóveis</dt>
-                <dd className="mt-1 font-heading text-3xl font-extrabold">{lista.length || "—"}</dd>
+                <dt className="text-xs uppercase tracking-wider text-slate-400">Para alugar</dt>
+                <dd className="mt-1 font-heading text-3xl font-extrabold" data-testid="hero-metric-aluguel">{resumo?.aluguel_total || "—"}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wider text-slate-400">Bairros</dt>
-                <dd className="mt-1 font-heading text-3xl font-extrabold">{bairrosList.length || "—"}</dd>
+                <dt className="text-xs uppercase tracking-wider text-slate-400">À venda</dt>
+                <dd className="mt-1 font-heading text-3xl font-extrabold" data-testid="hero-metric-venda">{resumo?.venda_total || "—"}</dd>
               </div>
               <div>
                 <dt className="text-xs uppercase tracking-wider text-slate-400">A partir de</dt>
@@ -71,19 +80,37 @@ export default function Home() {
           </div>
 
           <div className="animate-fade-up self-center rounded-3xl border border-white/20 bg-white p-6 text-slate-900 shadow-2xl shadow-black/30 [animation-delay:120ms] sm:p-8" data-testid="hero-search-card">
+            <div className="mb-5 grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1" role="tablist">
+              {(["aluguel", "venda"] as const).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  role="tab"
+                  aria-selected={fin === v}
+                  onClick={() => {
+                    setFin(v);
+                    setF({ ...f, bairro: "", preco_max: "" });
+                  }}
+                  data-testid={`hero-tab-${v}`}
+                  className={cn("rounded-lg py-2.5 text-sm font-bold transition-[background-color,color,box-shadow] duration-200", fin === v ? "bg-white text-navy shadow" : "text-slate-500 hover:text-navy")}
+                >
+                  {v === "aluguel" ? "Alugar" : "Comprar"}
+                </button>
+              ))}
+            </div>
             <h2 className="text-xl font-bold text-navy">Encontre o imóvel ideal</h2>
-            <p className="mt-1 text-sm text-slate-500">Busque entre {lista.length || "dezenas de"} opções disponíveis agora.</p>
+            <p className="mt-1 text-sm text-slate-500">Busque entre {total || "centenas de"} opções disponíveis agora.</p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <FilterSelect
                 label="Bairro"
                 value={f.bairro}
                 onChange={(v) => setF({ ...f, bairro: v })}
                 allLabel="Todos os bairros"
-                options={bairrosList.map((b) => ({ value: b.nome, label: `${b.nome} (${b.total})` }))}
+                options={bairrosBuscaList.map((b) => ({ value: b.nome, label: `${b.nome} (${b.total})` }))}
                 testId="hero-filter-bairro"
               />
-              <FilterSelect label="Tipo" value={f.tipo} onChange={(v) => setF({ ...f, tipo: v })} allLabel="Casa ou apartamento" options={TIPO_OPTIONS} testId="hero-filter-tipo" />
-              <FilterSelect label="Aluguel máximo" value={f.preco_max} onChange={(v) => setF({ ...f, preco_max: v })} allLabel="Qualquer valor" options={PRECO_OPTIONS} testId="hero-filter-preco" />
+              <FilterSelect label="Tipo" value={f.tipo} onChange={(v) => setF({ ...f, tipo: v })} allLabel="Todos os tipos" options={TIPO_OPTIONS} testId="hero-filter-tipo" />
+              <FilterSelect label="Aluguel máximo" value={f.preco_max} onChange={(v) => setF({ ...f, preco_max: v })} allLabel="Qualquer valor" options={precoOptions(fin)} testId="hero-filter-preco" />
               <FilterSelect label="Quartos" value={f.quartos_min} onChange={(v) => setF({ ...f, quartos_min: v })} allLabel="Qualquer" options={QUARTOS_OPTIONS} testId="hero-filter-quartos" />
             </div>
             <button
@@ -108,21 +135,44 @@ export default function Home() {
         <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-pink">Selecionados para você</p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-navy sm:text-3xl lg:text-4xl">Imóveis em destaque</h2>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-navy sm:text-3xl lg:text-4xl">Destaques para alugar</h2>
           </div>
           <Link to="/imoveis" className="group inline-flex items-center gap-2 font-semibold text-navy hover:text-pink" data-testid="featured-see-all-link">
-            Ver todos os {lista.length || ""} imóveis <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            Ver todos os {resumo?.aluguel_total || ""} para alugar <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {todos.isLoading
+          {destQ.isLoading
             ? Array.from({ length: 6 }).map((_, i) => <PropertyCardSkeleton key={i} />)
             : vitrine.map((i, n) => <PropertyCard key={i.id} imovel={i} index={n} />)}
-          {!todos.isLoading && !vitrine.length && (
+          {!destQ.isLoading && !vitrine.length && (
             <p className="col-span-full rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500">Os imóveis aparecerão aqui em instantes.</p>
           )}
         </div>
       </section>
+
+      {/* VENDA */}
+      {(vendaQ.isLoading || vendas.length > 0) && (
+        <section className="border-y border-slate-200 bg-white py-20" data-testid="sale-section">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Realize o sonho da casa própria</p>
+                <h2 className="mt-2 text-2xl font-bold tracking-tight text-navy sm:text-3xl lg:text-4xl">Imóveis à venda</h2>
+                <p className="mt-2 max-w-xl text-slate-600">{resumo?.venda_total || "Centenas de"} casas, sobrados, apartamentos, coberturas e kitnets à venda em Praia Grande.</p>
+              </div>
+              <Link to="/imoveis?finalidade=venda" className="group inline-flex items-center gap-2 font-semibold text-navy hover:text-pink" data-testid="sale-see-all-link">
+                Ver todos à venda <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+              {vendaQ.isLoading
+                ? Array.from({ length: 3 }).map((_, i) => <PropertyCardSkeleton key={i} />)
+                : vendas.map((i, n) => <PropertyCard key={i.id} imovel={i} index={n} />)}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* BAIRROS */}
       <section id="bairros" className="scroll-mt-24 bg-white py-20" data-testid="bairros-section">

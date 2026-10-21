@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import PropertyFormDialog from "@/components/admin/PropertyFormDialog";
 import { apiDelete, apiPatch } from "@/lib/api";
 import { useAdminImoveis } from "@/lib/queries";
-import { brl, TIPO_LABEL } from "@/lib/format";
+import { brl, FINALIDADE_LABEL, TIPO_LABEL } from "@/lib/format";
+import FilterSelect from "@/components/FilterSelect";
 import type { Imovel, ImovelUpdate } from "@/lib/types";
 
 export function useInvalidateImoveis() {
@@ -28,6 +29,8 @@ export default function AdminImoveis() {
   const q = useAdminImoveis();
   const invalidate = useInvalidateImoveis();
   const [busca, setBusca] = useState("");
+  const [fin, setFin] = useState("");
+  const [limite, setLimite] = useState(60);
   const [editing, setEditing] = useState<Imovel | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [deleting, setDeleting] = useState<Imovel | null>(null);
@@ -48,9 +51,9 @@ export default function AdminImoveis() {
 
   const lista = useMemo(() => {
     const t = busca.trim().toLowerCase();
-    const all = q.data ?? [];
+    const all = (q.data ?? []).filter((i) => !fin || (i.finalidade ?? "aluguel") === fin);
     return t ? all.filter((i) => `${i.codigo} ${i.titulo} ${i.bairro}`.toLowerCase().includes(t)) : all;
-  }, [q.data, busca]);
+  }, [q.data, busca, fin]);
 
   return (
     <div className="space-y-6">
@@ -72,9 +75,13 @@ export default function AdminImoveis() {
         </button>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-        <Input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar por código, título ou bairro" className="h-11 bg-white pl-9" data-testid="admin-property-search-input" />
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+          <Input value={busca} onChange={(e) => { setBusca(e.target.value); setLimite(60); }} placeholder="Buscar por código, título ou bairro" className="h-11 bg-white pl-9" data-testid="admin-property-search-input" />
+        </div>
+        <FilterSelect label="" value={fin} onChange={(v) => { setFin(v); setLimite(60); }} allLabel="Aluguel e venda" options={[{ value: "aluguel", label: "Somente aluguel" }, { value: "venda", label: "Somente venda" }]} testId="admin-property-finalidade-filter" className="w-48 [&>span]:hidden" />
+        <span className="pb-3 text-sm text-slate-500" data-testid="admin-property-count">{lista.length} resultado{lista.length === 1 ? "" : "s"}</span>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -90,7 +97,7 @@ export default function AdminImoveis() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {lista.map((i) => (
+            {lista.slice(0, limite).map((i) => (
               <TableRow key={i.id} data-testid={`admin-property-row-${i.codigo}`} className={i.ativo ? "" : "opacity-55"}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -100,7 +107,7 @@ export default function AdminImoveis() {
                     <div className="min-w-0">
                       <p className="font-mono text-xs font-semibold text-pink">{i.codigo}</p>
                       <p className="max-w-[260px] truncate font-medium text-slate-900">{i.titulo}</p>
-                      <p className="text-xs text-slate-500">{TIPO_LABEL[i.tipo]} · {i.quartos} qts · {i.area} m²</p>
+                      <p className="text-xs text-slate-500">{FINALIDADE_LABEL[i.finalidade ?? "aluguel"]} · {TIPO_LABEL[i.tipo]} · {i.quartos} qts · {i.area} m²</p>
                     </div>
                   </div>
                 </TableCell>
@@ -144,6 +151,12 @@ export default function AdminImoveis() {
           </TableBody>
         </Table>
       </div>
+
+      {lista.length > limite && (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={() => setLimite((l) => l + 60)} data-testid="admin-property-load-more">Mostrar mais ({lista.length - limite} restantes)</Button>
+        </div>
+      )}
 
       <PropertyFormDialog open={formOpen} onOpenChange={setFormOpen} imovel={editing} />
 

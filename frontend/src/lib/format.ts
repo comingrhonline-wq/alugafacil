@@ -16,7 +16,11 @@ export function descontoPct(i: Pick<Imovel, "preco" | "preco_promocional">): num
   return Math.round((1 - i.preco_promocional / i.preco) * 100);
 }
 
-export const TIPO_LABEL: Record<string, string> = { casa: "Casa", apartamento: "Apartamento" };
+export const TIPO_LABEL: Record<string, string> = { casa: "Casa", apartamento: "Apartamento", kitnet: "Kitnet" };
+export const FINALIDADE_LABEL: Record<string, string> = { aluguel: "Aluguel", venda: "Venda" };
+
+/** "/mês" for rentals, nothing for sales. */
+export const sufixo = (i: { finalidade?: string }) => (i.finalidade === "venda" ? "" : "/mês");
 
 export const AMENIDADES: Record<string, string> = {
   KITCHEN: "Cozinha",
@@ -66,8 +70,9 @@ export function waLink(numero: string, texto: string): string | null {
   return `https://wa.me/${d}?text=${encodeURIComponent(texto)}`;
 }
 
-export function mensagemImovel(i: Pick<Imovel, "codigo" | "bairro" | "preco" | "preco_promocional">, nome?: string) {
-  const base = `Olá! Tenho interesse no imóvel ${i.codigo} no bairro ${i.bairro} (${brl(precoEfetivo(i))}/mês).`;
+export function mensagemImovel(i: Pick<Imovel, "codigo" | "bairro" | "preco" | "preco_promocional" | "finalidade">, nome?: string) {
+  const neg = i.finalidade === "venda" ? "à venda" : "para alugar";
+  const base = `Olá! Tenho interesse no imóvel ${i.codigo} ${neg} no bairro ${i.bairro} (${brl(precoEfetivo(i))}${sufixo(i)}).`;
   return nome ? `${base} Meu nome é ${nome}.` : base;
 }
 

@@ -12,7 +12,7 @@ from models.imovel import Imovel, Settings
 DATA = Path(__file__).parent / "data" / "imoveis.json"
 PROMOS = {"CA0331": 900.0}
 
-LABEL_TIPO = {"casa": "Casa", "apartamento": "Apartamento"}
+LABEL_TIPO = {"casa": "Casa", "apartamento": "Apartamento", "kitnet": "Kitnet"}
 
 
 def titulo(r: dict) -> str:
@@ -20,8 +20,12 @@ def titulo(r: dict) -> str:
     pt = r.get("property_type") or ""
     if "DUPLEX" in pt:
         t = "Apartamento duplex"
-    elif "KITNET" in pt or "STUDIO" in pt:
-        t = "Kitnet"
+    elif "GARDEN" in pt:
+        t = "Apartamento garden"
+    elif "TRIPLEX" in pt:
+        t = "Apartamento triplex"
+    elif "PENTHOUSE" in pt or "COBERTURA" in pt:
+        t = "Cobertura"
     elif "TOWNHOUSE" in pt or "SOBRADO" in pt:
         t = "Sobrado"
     q = r["quartos"]
@@ -36,7 +40,11 @@ async def main():
     await ensure_indexes()
     rows = json.loads(DATA.read_text(encoding="utf-8"))
     inserted = 0
+    await db.imoveis.update_many({"finalidade": {"$exists": False}}, {"$set": {"finalidade": "aluguel"}})
     for r in rows:
+        r["bairro"] = r["bairro"].strip().rstrip(".").strip()
+        if r.get("finalidade", "aluguel") == "aluguel":
+            r["descricao"] = (r.get("descricao") or "").replace("à venda", "para alugar")
         codigo = r["codigo"].upper()
         if await db.imoveis.find_one({"codigo": codigo}):
             continue
@@ -44,6 +52,7 @@ async def main():
             codigo=codigo,
             titulo=titulo(r),
             tipo=r["tipo"],
+            finalidade=r.get("finalidade", "aluguel"),
             bairro=r["bairro"],
             cidade=r.get("cidade") or "Praia Grande",
             estado=r.get("estado") or "SP",
@@ -64,10 +73,16 @@ async def main():
         inserted += 1
     # mark a few well-photographed, mid-priced listings as destaque if none yet (besides promo)
     if await db.imoveis.count_documents({"destaque": True}) <= len(PROMOS):
-        cands = await db.imoveis.find({"ativo": True, "preco_promocional": None}, {"_id": 0}).to_list(1000)
+        cands = await db.imoveis.find({"ativo": True, "preco_promocional": None, "finalidade": "aluguel"}, {"_id": 0}).to_list(1000)
         cands = [c for c in cands if len(c["fotos"]) >= 8 and 1800 <= c["preco"] <= 4500]
         cands.sort(key=lambda c: -len(c["fotos"]))
         for c in cands[:5]:
+            await db.imoveis.update_one({"id": c["id"]}, {"$set": {"destaque": True}})
+    if not await db.imoveis.count_documents({"finalidade": "venda", "destaque": True}):
+        cands = await db.imoveis.find({"ativo": True, "finalidade": "venda"}, {"_id": 0}).to_list(5000)
+        cands = [c for c in cands if len(c["fotos"]) >= 10 and 300000 <= c["preco"] <= 900000]
+        cands.sort(key=lambda c: -len(c["fotos"]))
+        for c in cands[:6]:
             await db.imoveis.update_one({"id": c["id"]}, {"$set": {"destaque": True}})
     if not await db.settings.find_one({"id": "site"}):
         await db.settings.insert_one({**Settings().model_dump(), "id": "site"})

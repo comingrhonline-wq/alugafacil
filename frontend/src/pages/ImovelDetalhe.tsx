@@ -5,7 +5,7 @@ import PhotoGallery from "@/components/PhotoGallery";
 import InterestForm from "@/components/InterestForm";
 import PropertyCard from "@/components/PropertyCard";
 import { useImovel, useSettings, useSimilares } from "@/lib/queries";
-import { AMENIDADES, amenidadesVisiveis, brl, descontoPct, mensagemImovel, TIPO_LABEL, waLink } from "@/lib/format";
+import { AMENIDADES, amenidadesVisiveis, brl, descontoPct, mensagemImovel, sufixo, TIPO_LABEL, waLink } from "@/lib/format";
 
 function youtubeId(url: string): string | null {
   const m = url.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);
@@ -69,9 +69,9 @@ export default function ImovelDetalhe() {
       <nav className="mb-5 flex items-center gap-1.5 text-sm text-slate-500" aria-label="Navegação estrutural">
         <Link to="/" className="hover:text-navy">Início</Link>
         <ChevronRight className="size-3.5" />
-        <Link to="/imoveis" className="hover:text-navy" data-testid="breadcrumb-imoveis">Imóveis</Link>
+        <Link to={i.finalidade === "venda" ? "/imoveis?finalidade=venda" : "/imoveis"} className="hover:text-navy" data-testid="breadcrumb-imoveis">{i.finalidade === "venda" ? "Comprar" : "Alugar"}</Link>
         <ChevronRight className="size-3.5" />
-        <Link to={`/imoveis?bairro=${encodeURIComponent(i.bairro)}`} className="hover:text-navy">{i.bairro}</Link>
+        <Link to={`/imoveis?${i.finalidade === "venda" ? "finalidade=venda&" : ""}bairro=${encodeURIComponent(i.bairro)}`} className="hover:text-navy">{i.bairro}</Link>
         <ChevronRight className="size-3.5" />
         <span className="font-mono text-navy">{i.codigo}</span>
       </nav>
@@ -80,6 +80,7 @@ export default function ImovelDetalhe() {
         <div>
           <div className="mb-3 flex flex-wrap gap-2">
             {promo && <span className="rounded-full bg-pink px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">Super oferta −{descontoPct(i)}%</span>}
+            <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${i.finalidade === "venda" ? "bg-emerald-600 text-white" : "bg-navy text-white"}`} data-testid="property-finalidade">{i.finalidade === "venda" ? "À venda" : "Para alugar"}</span>
             <span className="rounded-full bg-navy/5 px-3 py-1 text-xs font-semibold text-navy">{TIPO_LABEL[i.tipo]}</span>
             <span className="rounded-full bg-navy/5 px-3 py-1 font-mono text-xs font-semibold text-navy" data-testid="property-code">Cód. {i.codigo}</span>
           </div>
@@ -87,7 +88,7 @@ export default function ImovelDetalhe() {
           <p className="mt-2 flex items-center gap-1.5 text-slate-600"><MapPin className="size-4 text-pink" />{i.bairro} · {i.cidade}/{i.estado}</p>
         </div>
         <div className="flex gap-2">
-          <Link to="/imoveis" className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" data-testid="back-to-list-button"><ArrowLeft className="size-4" /> Voltar</Link>
+          <Link to={i.finalidade === "venda" ? "/imoveis?finalidade=venda" : "/imoveis"} className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" data-testid="back-to-list-button"><ArrowLeft className="size-4" /> Voltar</Link>
           <button type="button" onClick={share} className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" data-testid="share-button"><Share2 className="size-4" /> Compartilhar</button>
         </div>
       </div>
@@ -137,12 +138,13 @@ export default function ImovelDetalhe() {
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className={`overflow-hidden rounded-3xl border bg-white shadow-xl ${promo ? "border-pink shadow-pink/10" : "border-slate-200 shadow-slate-200/60"}`} data-testid="price-box">
             <div className={promo ? "bg-pink-subtle p-6" : "bg-sand p-6"}>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Aluguel mensal</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{i.finalidade === "venda" ? "Valor de venda" : "Aluguel mensal"}</p>
               {promo && <p className="mt-2 font-mono text-slate-400 line-through" data-testid="price-box-original">{brl(i.preco)}</p>}
               <p className={`font-mono text-4xl font-bold tracking-tight ${promo ? "text-pink-hover" : "text-navy"}`} data-testid="price-box-price">
-                {brl(i.preco_promocional || i.preco)}<span className="ml-1 font-sans text-base font-medium text-slate-500">/mês</span>
+                {brl(i.preco_promocional || i.preco)}{sufixo(i) && <span className="ml-1 font-sans text-base font-medium text-slate-500">{sufixo(i)}</span>}
               </p>
-              {promo && <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-emerald-700"><Sparkles className="size-4" />Você economiza {brl(i.preco - (i.preco_promocional || 0))} por mês</p>}
+              {promo && <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-emerald-700"><Sparkles className="size-4" />Você economiza {brl(i.preco - (i.preco_promocional || 0))}{i.finalidade === "venda" ? "" : " por mês"}</p>}
+              {i.finalidade === "venda" && i.area > 0 && <p className="mt-2 text-sm text-slate-500" data-testid="price-per-m2">{brl(Math.round(i.preco / i.area))} por m²</p>}
             </div>
             <div className="p-6">
               <h3 className="mb-4 text-lg font-semibold text-navy">Gostou? Fale com a gente</h3>
