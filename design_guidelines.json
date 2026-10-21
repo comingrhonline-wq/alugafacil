@@ -1,0 +1,201 @@
+{
+  "project_name": "Aluga Fácil - Imóveis para Alugar em Praia Grande/SP",
+  "archetype": "ARCHETYPE 5: LUXURY & MARITIME COASTAL HIGH-TRUST (Navy Deep Ocean + Radiant Hot Pink/Magenta + Clean Sandy Off-White)",
+  "language": "pt-BR",
+  "currency_format": "BRL (R$ 1.234,56/mês)",
+  "theme_strategy": {
+    "default_mode": "light",
+    "notes": "Light mode primary for listings and credibility, with dark deep ocean navy accents for hero, top navigation bar, high-converting promo banners and admin header."
+  },
+  "typography": {
+    "font_family_heading": "Plus Jakarta Sans, sans-serif",
+    "font_family_body": "DM Sans, sans-serif",
+    "font_family_mono": "JetBrains Mono, monospace",
+    "css_import": "@import \"@fontsource-variable/plus-jakarta-sans\";\n@import \"@fontsource-variable/dm-sans\";\n@import \"@fontsource-variable/jetbrains-mono\";",
+    "scale_px": {
+      "display": 60,
+      "h1": 48,
+      "h2": 36,
+      "h3": 24,
+      "body": 16,
+      "caption": 14
+    },
+    "hierarchy_rules": {
+      "hero_h1": "text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1]",
+      "section_h2": "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-snug",
+      "card_title_h3": "text-xl sm:text-2xl font-semibold tracking-normal",
+      "meta_label": "text-xs font-semibold uppercase tracking-[0.18em]",
+      "body_regular": "text-base leading-relaxed font-normal text-slate-700 dark:text-slate-200",
+      "price_highlight": "font-bold text-2xl lg:text-3xl font-mono tracking-tight"
+    }
+  },
+  "colors": {
+    "surfaces": [
+      {
+        "name": "page",
+        "kind": "solid",
+        "bg": "#F8FAFC",
+        "on_bg": "#0F172A",
+        "on_bg_muted": "#475569",
+        "roles": {
+          "link": "#08284C",
+          "link_hover": "#E11D74",
+          "border": "#E2E8F0"
+        }
+      },
+      {
+        "name": "panel",
+        "kind": "solid",
+        "bg": "#FFFFFF",
+        "on_bg": "#0F172A",
+        "on_bg_muted": "#475569",
+        "roles": {
+          "border": "#E2E8F0",
+          "highlight": "#FFF1F6"
+        }
+      },
+      {
+        "name": "inverse",
+        "kind": "solid",
+        "bg": "#08284C",
+        "on_bg": "#FFFFFF",
+        "on_bg_muted": "#94A3B8",
+        "roles": {
+          "accent_badge": "#F52D83",
+          "border": "#1E3A5F",
+          "link": "#38BDF8"
+        }
+      },
+      {
+        "name": "promo_card",
+        "kind": "solid",
+        "bg": "#FFF1F6",
+        "on_bg": "#831843",
+        "on_bg_muted": "#9D174D",
+        "roles": {
+          "strike_price": "#9CA3AF",
+          "active_price": "#E11D74",
+          "badge_bg": "#F52D83",
+          "badge_text": "#FFFFFF"
+        }
+      },
+      {
+        "name": "hero",
+        "kind": "image",
+        "contrast_against": "#08284C",
+        "guarantee": "scrim: linear-gradient(135deg, rgba(8, 40, 76, 0.92) 0%, rgba(8, 40, 76, 0.78) 50%, rgba(12, 54, 99, 0.85) 100%)",
+        "on_bg": "#FFFFFF",
+        "on_bg_muted": "#E2E8F0",
+        "roles": {
+          "link": "#38BDF8",
+          "tag": "#F52D83"
+        }
+      },
+      {
+        "name": "admin_sidebar",
+        "kind": "solid",
+        "bg": "#051D38",
+        "on_bg": "#F8FAFC",
+        "on_bg_muted": "#94A3B8",
+        "roles": {
+          "active_item_bg": "#F52D83",
+          "active_item_text": "#FFFFFF",
+          "border": "#0F2D52"
+        }
+      }
+    ],
+    "brand": {
+      "navy_primary": "#08284C",
+      "navy_dark": "#051D38",
+      "navy_light": "#0E3E75",
+      "pink_accent": "#F52D83",
+      "pink_hover": "#E11D74",
+      "pink_subtle": "#FFF1F6",
+      "emerald_promo": "#059669",
+      "whatsapp_green": "#25D366"
+    },
+    "accent": "#F52D83",
+    "on_accent": "#FFFFFF"
+  },
+  "entry_surfaces": {
+    "/": "split hero with search card — brand value proposition + quick metrics left, floating search filter + featured promo teaser right over deep ocean coastal photo overlay",
+    "/imoveis": "structured rental catalogue — sticky filter bar top/sidebar, results header with sort select, responsive grid of property cards with promo badges and direct WhatsApp CTAs",
+    "/imovel/:codigo": "editorial property detail — responsive image gallery with lightbox, specs pill grid, comodidades badge matrix, sticky contact box with lead form + direct WhatsApp trigger",
+    "/admin": "protected management console — clean stats overview, searchable properties data table with promo/destaque toggles, lead status pipeline, and live settings editor for WhatsApp & CRECI",
+    "/admin/login": "branded split auth — company positioning panel with Praia Grande skyline left, clean secure access card right"
+  },
+  "visual_enhancers": {
+    "promo_badge_ca0331": {
+      "tag_text": "SUPER OFERTA EXCLUSIVA",
+      "price_original": "R$ 1.750/mês",
+      "price_promo": "R$ 900/mês",
+      "discount_percent": "48% OFF",
+      "bairro": "Balneário Esmeralda",
+      "styling": "border-2 border-[#F52D83] shadow-lg shadow-[#F52D83]/20 bg-gradient-to-br from-white via-[#FFF1F6] to-white relative overflow-hidden"
+    },
+    "card_interactions": "hover:-translate-y-1.5 hover:shadow-xl transition-all duration-300 border border-slate-200/80 rounded-2xl overflow-hidden bg-white group",
+    "whatsapp_cta_button": "bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold rounded-xl px-5 py-3 shadow-md hover:shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2",
+    "glass_header": "sticky top-0 z-50 backdrop-blur-xl bg-white/90 border-b border-slate-200/70 shadow-xs"
+  },
+  "grids_and_layouts": {
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "property_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8",
+    "bairros_shortcuts_grid": "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4",
+    "stats_bar": "grid grid-cols-2 md:grid-cols-4 gap-4 py-8 bg-[#08284C] text-white rounded-3xl px-8 my-12"
+  },
+  "motion": {
+    "page_transitions": "opacity 0.25s ease-out, transform 0.25s ease-out",
+    "hover_lift": "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+    "dialog_animation": "scale and fade entry with backdrop blur 8px",
+    "reduced_motion": "@media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }"
+  },
+  "accessibility": {
+    "minimum_contrast_ratio": "WCAG AA 4.5:1 for all regular body text, 3:1 for large display titles",
+    "focus_rings": "focus-visible:ring-2 focus-visible:ring-[#F52D83] focus-visible:ring-offset-2 outline-none",
+    "aria_labels": "All icon-only buttons (close, carousel arrows, phone call) must have descriptive aria-label",
+    "data_test_ids": "Every clickable card, filter input, CTA button, lead input, and admin control must include data-testid attribute"
+  },
+  "image_urls": {
+    "hero_background": {
+      "url": "https://images.pexels.com/photos/34775542/pexels-photo-34775542.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Aerial view of Praia Grande beach with coastline and modern high-rises in São Paulo, Brazil",
+      "category": "hero"
+    },
+    "coastal_beach_vibrant": {
+      "url": "https://images.pexels.com/photos/35683829/pexels-photo-35683829.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Vibrant urban beachfront in Praia Grande with palm trees and ocean",
+      "category": "lifestyle_banner"
+    },
+    "modern_beach_house_living": {
+      "url": "https://images.pexels.com/photos/2068953/pexels-photo-2068953.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Clean modern interior apartment in São Paulo with wooden finish",
+      "category": "property_interior"
+    },
+    "jogging_praia_grande": {
+      "url": "https://images.pexels.com/photos/35683788/pexels-photo-35683788.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Beachfront lifestyle in Praia Grande with people enjoying the coastline",
+      "category": "about_city"
+    }
+  },
+  "component_structure": {
+    "header": "frontend/src/components/Header.tsx - Logo with navy and pink branding, links (Início, Imóveis, Promoções, Bairros, Como Funciona, Contato), WhatsApp quick button, CRECI display, Admin access link",
+    "footer": "frontend/src/components/Footer.tsx - Deep navy background, quick links, bairros list, legal info, editable WhatsApp/CRECI/Email from settings, copyright",
+    "hero": "frontend/src/components/Hero.tsx - High-impact coastal imagery, headline 'Encontre o imóvel ideal para alugar em Praia Grande', instant filter bar (Bairro, Tipo, Preço máx, Quartos)",
+    "promo_highlight": "frontend/src/components/PromoHighlight.tsx - Prominent banner for CA0331 Balneário Esmeralda de R$ 1.750 por R$ 900/mês with live countdown/badge and direct reservation trigger",
+    "property_card": "frontend/src/components/PropertyCard.tsx - Image carousel preview, badge (Destaque/Promoção), price with strikethrough if promo, bairro, tags (quartos, banheiros, vagas, área m²), 'Ver Detalhes' & 'WhatsApp'",
+    "contact_modal": "frontend/src/components/ContactModal.tsx - Lead capture modal with nome, WhatsApp, mensagem pré-preenchida, CRECI assurance, saves to backend and redirects to WhatsApp web/app",
+    "filter_bar": "frontend/src/components/FilterBar.tsx - Responsive search & filter widget with search input, dropdowns for bairro, tipo (Casa / Apartamento), quartos, ordenação, and clear button",
+    "lightbox": "frontend/src/components/ImageLightbox.tsx - Fullscreen responsive photo gallery for property details",
+    "admin_dashboard": "frontend/src/pages/Admin.tsx - Tabbed control panel: 1. Imóveis (CRUD, toggles destaque/promo, edit price/promo), 2. Leads/Interessados (status flow, export, WhatsApp contact), 3. Configurações (WhatsApp, CRECI, Nome, Email)"
+  },
+  "instructions_to_main_agent": [
+    "1. Read all properties carefully. Seed ~59 realistic real-estate rental listings from Praia Grande/SP with high quality Brazilian coastal photos and authentic neighborhood names: Canto do Forte, Boqueirão, Guilhermina, Aviação, Tupi, Ocian, Vila Mirim, Balneário Esmeralda, Caiçara, Real, Flórida, Solemar.",
+    "2. Ensure property CA0331 (Balneário Esmeralda) is flagged with is_promo: true, original_price: 1750, price: 900, description highlighting the incredible rental opportunity.",
+    "3. Set up backend settings model with defaults: whatsapp_number: '(13) 99742-8819' (or editable in admin), creci: 'CRECI 182.490-F / SP', corretor_name: 'Aluga Fácil Imóveis PG', contact_email: 'contato@alugafacilpg.com.br'.",
+    "4. In frontend/src/index.css, use the specified fonts (@fontsource-variable/plus-jakarta-sans, @fontsource-variable/dm-sans, @fontsource-variable/jetbrains-mono) and configure color variables.",
+    "5. Every property card must feature accurate specs: Quartos, Suítes, Banheiros, Vagas de garagem, and Área em m².",
+    "6. Contact form submission MUST both persist the lead in MongoDB (/api/leads) and seamlessly open WhatsApp with formatted message: 'Olá! Tenho interesse no imóvel [CÓDIGO] no bairro [BAIRRO] (R$ [VALOR]/mês). Meu nome é [NOME].'.",
+    "7. Admin panel must be protected with simple password authentication (default password configurable e.g., 'admin123' or 'praia2026') and allow updating WhatsApp number and CRECI in real-time.",
+    "8. Add data-testid to every interactive component (search-input, filter-bairro, property-card-[codigo], whatsapp-button, lead-submit-button, admin-nav-properties, etc.)."
+  ]
+}
